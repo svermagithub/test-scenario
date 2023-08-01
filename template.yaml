@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Kafka Consumer Lambda Function
+
+Resources:
+  KafkaConsumerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: KafkaConsumerFunction
+      Runtime: python3.8
+      CodeUri: ./
+      Handler: lambda_function.lambda_handler
+      Timeout: 30
+      MemorySize: 128
+      Policies:
+        - AWSLambdaBasicExecutionRole
+
+  KafkaConsumerEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      FunctionName: !GetAtt KafkaConsumerFunction.Arn
+      EventSourceArn: <KAFKA_TOPIC_ARN>
+      StartingPosition: LATEST
