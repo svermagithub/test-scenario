@@ -1,0 +1,75 @@
+import json
+import logging
+
+# Configure logging
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+# Valid steps, random values, and speedup values lists
+VALID_STEPS = ['make', 'cook', 'cut-inbox']
+VALID_RANDOM = ['0', '1', '2']
+VALID_SPEEDUP = ['1', '10', '30']
+
+def lambda_handler(event, context):
+    try:
+        # Extract data from the POST request
+        request_data = json.loads(event['body'])
+        step = request_data.get('step')
+        random = request_data.get('random')
+        speedup = request_data.get('speedup')
+        
+        response = {
+            "step": step,
+            "random": random,
+            "speedup": speedup
+        }
+        
+        # Check if step is valid
+        if step in VALID_STEPS:
+            # Check if random is valid
+            if random in VALID_RANDOM:
+                # Check if speedup is valid
+                if speedup in VALID_SPEEDUP:
+                    result = {
+                        "step_match": True,
+                        "random_match": True,
+                        "speedup_match": True,
+                        "request_data": response
+                    }
+                else:
+                    result = {
+                        "step_match": True,
+                        "random_match": True,
+                        "speedup_match": False,
+                        "request_data": response
+                    }
+            else:
+                result = {
+                    "step_match": True,
+                    "random_match": False,
+                    "speedup_match": False,
+                    "request_data": response
+                }
+        else:
+            result = {
+                "step_match": False,
+                "random_match": False,
+                "speedup_match": False,
+                "request_data": response
+            }
+        
+        # Log info message
+        logger.info("Values extracted: step={}, random={}, speedup={}".format(step, random, speedup))
+        
+        return {
+            "statusCode": 200,
+            "body": json.dumps(result)
+        }
+    except Exception as e:
+        # Log error message
+        logger.error("Error: {}".format(str(e)))
+        
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": str(e)})
+        }
