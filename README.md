@@ -1,39 +1,32 @@
-# test-scenarioDescription
-Hey there, Gurus! Welcome to this hands-on lab. In this lab, you will first provision an EKS cluster with Terraform. Then, you will deploy an HTML5 web-based Pac-Man game that you can play in your browser to your EKS cluster with Terraform. Sounds like fun!
+MongoDB Atlas is a managed database service provided by MongoDB that allows you to deploy and manage MongoDB databases in the cloud. Integrating MongoDB Atlas with an AWS S3 bucket can be useful for scenarios where you want to store and retrieve data from S3 using your MongoDB Atlas cluster. Here's a high-level overview of how to set up MongoDB Atlas with an AWS S3 bucket:
 
-Objectives
-Successfully complete this lab by achieving the following learning objectives:
+Create an AWS S3 Bucket:
 
-Deploy Your EKS Cluster with Terraform
+Log in to your AWS account and navigate to the AWS S3 service.
+Create a new S3 bucket or use an existing one to store your data.
+Configure AWS IAM Role:
 
-In the AWS Management Console, in the IAM service, create an access key for the AWS CLI called Terraform_Access_Key.
-In the terminal, configure the AWS CLI to connect to your AWS instance.
-Download the EKS Terraform configuration.
-Unzip the EKS Terraform configuration zip file.
-Change into the eks directory and initialize your working directory.
-Deploy your EKS cluster with Terraform. (Note: This can take between 10 and 15 minutes.)
-Configure the Kubernetes CLI to use your EKS cluster context.
-Confirm your cluster is up and running.
-Complete the Terraform Configuration
+You'll need to create an IAM (Identity and Access Management) role that MongoDB Atlas can use to access your S3 bucket. Here's how:
+In the AWS Management Console, go to the IAM service.
+Create a new role and select "Another AWS account" as the trusted entity.
+Enter your MongoDB Atlas AWS account ID and configure permissions that allow access to the S3 bucket.
+Set Up MongoDB Atlas:
 
-Download the Pac-Man Terraform configuration.
-Unzip the Pac-Man Terraform configuration zip file.
-Change into the pac-man directory.
-Add the provided Docker image to your Pac-Man deployment configuration.
-Update the main Terraform configuration file to include your two modules and pass the pac-man namespace to them.
-Save your changes and initialize your pac-man working directory.
-Validate your configuration.
-Deploy the Pac-Man Web Application with Terraform
+If you haven't already, sign up for a MongoDB Atlas account or log in to your existing one.
+Create a new cluster or use an existing one.
+Enable S3 Data Lake:
 
-Apply the Terraform configuration and deploy the web application in the pac-man namespace.
-Confirm that your resources were deployed and are available.
-In a browser, launch the application and test that it's working by playing some Pac-Man!
-Scale the Kubernetes Web Application
+In your MongoDB Atlas dashboard, go to your cluster's "Database Access" settings and ensure that you have the necessary database user with the appropriate permissions to access your databases.
+Next, go to the "Database Deployments" section and select your cluster.
+In the cluster settings, navigate to the "Data Lake" section and click "Enable Data Lake."
+Configure the Data Lake settings, including the AWS IAM role you created earlier, the S3 bucket name, and other relevant options.
+Access and Query S3 Data:
 
-Change the replicas in your deployment configurations to 2 backend pods and 3 frontend pods.
-Apply the changes to the Pac-Man web application with Terraform.
-Confirm the changes were successfully applied.
-In the browser, refresh the application and test that it is still working as expected.
-Scale the application back down to 1 backend pod and 1 frontend pod.
-Confirm the changes were successfully applied.
-In the browser, refresh the application again and test that it is still working as expected.
+Once the Data Lake is enabled, you can use MongoDB Atlas Data Lake features to access and query data stored in your S3 bucket alongside your MongoDB data. You can use tools like MongoDB Compass to run queries and perform operations on your data.
+Test Your Setup:
+
+To ensure that everything is set up correctly, you can run some sample queries and tests to interact with your S3 data via MongoDB Atlas.
+Monitoring and Maintenance:
+
+Regularly monitor your setup and manage the permissions and access controls to ensure security and compliance with your organization's policies.
+Remember that this setup involves interacting with two different cloud services (AWS S3 and MongoDB Atlas), and you should ensure proper security measures and access controls are in place to protect your data. Additionally, the exact steps and options available in MongoDB Atlas may change over time, so refer to the official MongoDB Atlas documentation and AWS documentation for the most up-to-date information and guidelines.
