@@ -1,0 +1,32 @@
+
+fun compareJsonToMetadata(jsonNode: JsonNode, metadata: Map<String, String>, currentPath: String = ""): Boolean {
+    when {
+        jsonNode.isObject -> {
+            for ((fieldName, fieldNode) in jsonNode.fields()) {
+                val keyPath = if (currentPath.isNotEmpty()) "$currentPath.$fieldName" else fieldName
+                if (fieldNode.isValueNode) {
+                    if(metadata.containsKey(keyPath)) {
+                        val expectedType = metadata[keyPath]
+                        // TODO: type check
+                    } else {
+                        return false
+                    }
+                } else if (!compareJsonToMetadata(fieldNode, metadata, keyPath)) {
+                    return false
+                }
+            }
+        }
+        jsonNode.isArray -> {
+            for ((index, element) in jsonNode.withIndex()) {
+                val keyPath = "$currentPath[*]"
+                if (!compareJsonToMetadata(element, metadata, keyPath)) {
+                    return false
+                }
+            }
+        }
+        else -> {
+            return false
+        }
+    }
+    return true
+}
