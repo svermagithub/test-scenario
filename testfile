@@ -1,0 +1,59 @@
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+
+val metadataMap = mapOf(
+    "members[*].description" to "StringScalarTypeNodeImpl(type-string, path-members [*]/description)",
+    "members[*].relativeId" to "StringScalarTypeNodeImpl(type-string, path-members [*]/relativeId)",
+    "members[*].parentResourceId" to "StringScalarTypeNodeImpl(type-string, path-members [*]/parentResourceId)"
+)
+
+fun compareJsonToMetadata(jsonNode: JsonNode, metadata: Map<String, String>): Boolean {
+    when {
+        jsonNode.isObject -> {
+            for ((fieldName, fieldNode) in jsonNode.fields()) {
+                val keyPath = "$fieldName[*]"
+                if (metadata.containsKey(keyPath)) {
+                    val expectedType = metadata[keyPath]
+                    //TODO: type checking
+                }
+                if (!compareJsonToMetadata(fieldNode, metadata)) {
+                    return false
+                }
+            }
+        }
+        jsonNode.isArray -> {
+            for (element in jsonNode) {
+                if (!compareJsonToMetadata(element, metadata)) {
+                    return false
+                }
+            }
+        }
+    }
+    return true
+}
+
+fun main() {
+    val json = """{
+        "members": [
+            {
+                "description": "Sample",
+                "relativeId": "12345"
+            },
+            {
+                "description": "Another",
+                "relativeId": "67890"
+            }
+        ]
+    }"""
+
+    val objectMapper = ObjectMapper()
+    val jsonNode = objectMapper.readTree(json)
+
+    val isStructureValid = compareJsonToMetadata(jsonNode, metadataMap)
+
+    if (isStructureValid) {
+        println("Valid structure")
+    } else {
+        println("Invalid structure")
+    }
+}
