@@ -1,0 +1,81 @@
+from confluent_kafka import Producer, Consumer, KafkaError
+import sys
+
+# Set the Kafka broker address with SCRAM authentication
+bootstrap_servers = 'your_kafka_broker_ip:9092'
+
+# Set the Kafka topic to use for testing
+topic = 'test_topic'
+
+# Set SCRAM credentials
+username = 'your_scram_username'
+password = 'your_scram_password'
+
+# Define a Kafka producer function to send messages
+def kafka_producer():
+    producer = Producer({
+        'bootstrap.servers': bootstrap_servers,
+        'security.protocol': 'sasl_ssl',
+        'sasl.mechanisms': 'SCRAM-SHA-256',
+        'sasl.username': username,
+        'sasl.password': password,
+        'ssl.ca.location': '/path/to/ca.crt',  # Path to CA certificate file
+        'ssl.certificate.location': '/path/to/client.crt',  # Path to client certificate file
+        'ssl.key.location': '/path/to/client.key'  # Path to client private key file
+    })
+    
+    try:
+        # Produce a test message
+        producer.produce(topic, key='key', value='Hello, Kafka!')
+        producer.flush()
+        print("Message sent successfully")
+    except Exception as e:
+        print(f"Failed to send message: {str(e)}")
+
+# Define a Kafka consumer function to receive messages
+def kafka_consumer():
+    consumer = Consumer({
+        'bootstrap.servers': bootstrap_servers,
+        'security.protocol': 'sasl_ssl',
+        'sasl.mechanisms': 'SCRAM-SHA-256',
+        'sasl.username': username,
+        'sasl.password': password,
+        'ssl.ca.location': '/path/to/ca.crt',  # Path to CA certificate file
+        'ssl.certificate.location': '/path/to/client.crt',  # Path to client certificate file
+        'ssl.key.location': '/path/to/client.key',  # Path to client private key file
+        'group.id': 'test_group',
+        'auto.offset.reset': 'earliest'
+    })
+
+    consumer.subscribe([topic])
+
+    while True:
+        msg = consumer.poll(1.0)
+
+        if msg is None:
+            continue
+        if msg.error():
+            if msg.error().code() == KafkaError._PARTITION_EOF:
+                print('Reached end of partition')
+            else:
+                print(f'Error: {msg.error()}', file=sys.stderr)
+        else:
+            print(f'Received message: {msg.value().decode("utf-8")}')
+
+if __name__ == '__main__':
+    while True:
+        print("Choose an option:")
+        print("1. Send a message")
+        print("2. Receive messages")
+        print("3. Quit")
+        choice = input("Enter your choice: ")
+
+        if choice == '1':
+            kafka_producer()
+        elif choice == '2':
+            kafka_consumer()
+        elif choice == '3':
+            print("Exiting...")
+            break
+        else:
+            print("Invalid choice. Please select a valid option.")
