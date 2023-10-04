@@ -1,0 +1,253 @@
+import java.util.*
+import java.text.SimpleDateFormat
+import java.text.ParseException
+
+sealed class DataType {
+    object BOOLEAN : DataType()
+    object STRING : DataType()
+    object UUID : DataType()
+    object CHARACTER : DataType()
+    object SHORT : DataType()
+    object INTEGER : DataType()
+    object LONG : DataType()
+    object FLOAT : DataType()
+    object DOUBLE : DataType()
+    object DATE : DataType()
+    object DATE_TIME : DataType()
+    object NUMBER : DataType()
+    // Add more data types as needed
+}
+
+data class ValidationResult(val formattedValue: Any?, val errors: List<String>)
+
+fun handleFormattingType(value: Any, dataType: DataType): ValidationResult {
+    val errors = mutableListOf<String>()
+
+    val formattedValue = when (dataType) {
+        DataType.BOOLEAN -> {
+            when (value) {
+                is Boolean -> value
+                is String -> {
+                    if (value.equals("true", ignoreCase = true)) true
+                    else if (value.equals("false", ignoreCase = true)) false
+                    else {
+                        errors.add("Value is not a valid boolean")
+                        null
+                    }
+                }
+                else -> {
+                    errors.add("Value is not a valid boolean")
+                    null
+                }
+            }
+        }
+        DataType.STRING -> {
+            if (value is String) {
+                value
+            } else {
+                errors.add("Value is not a string")
+                null
+            }
+        }
+        DataType.UUID -> {
+            when (value) {
+                is UUID -> value
+                is String -> {
+                    try {
+                        UUID.fromString(value)
+                    } catch (e: IllegalArgumentException) {
+                        errors.add("Value is not a valid UUID")
+                        null
+                    }
+                }
+                else -> {
+                    errors.add("Value is not a valid UUID")
+                    null
+                }
+            }
+        }
+        DataType.CHARACTER -> {
+            if (value is Char) {
+                value
+            } else if (value is String && value.length == 1) {
+                value[0]
+            } else {
+                errors.add("Value is not a valid character")
+                null
+            }
+        }
+        DataType.SHORT -> {
+            when (value) {
+                is Short -> value
+                is Int -> {
+                    if (value >= Short.MIN_VALUE && value <= Short.MAX_VALUE) value.toShort()
+                    else {
+                        errors.add("Value is not a valid short")
+                        null
+                    }
+                }
+                is String -> {
+                    try {
+                        value.toShort()
+                    } catch (e: NumberFormatException) {
+                        errors.add("Value is not a valid short")
+                        null
+                    }
+                }
+                else -> {
+                    errors.add("Value is not a valid short")
+                    null
+                }
+            }
+        }
+        DataType.INTEGER -> {
+            when (value) {
+                is Int -> value
+                is Short -> value.toInt()
+                is String -> {
+                    try {
+                        value.toInt()
+                    } catch (e: NumberFormatException) {
+                        errors.add("Value is not a valid integer")
+                        null
+                    }
+                }
+                else -> {
+                    errors.add("Value is not a valid integer")
+                    null
+                }
+            }
+        }
+        DataType.LONG -> {
+            when (value) {
+                is Long -> value
+                is Int -> value.toLong()
+                is Short -> value.toLong()
+                is String -> {
+                    try {
+                        value.toLong()
+                    } catch (e: NumberFormatException) {
+                        errors.add("Value is not a valid long")
+                        null
+                    }
+                }
+                else -> {
+                    errors.add("Value is not a valid long")
+                    null
+                }
+            }
+        }
+        DataType.FLOAT -> {
+            when (value) {
+                is Float -> value
+                is Double -> value.toFloat()
+                is String -> {
+                    try {
+                        value.toFloat()
+                    } catch (e: NumberFormatException) {
+                        errors.add("Value is not a valid float")
+                        null
+                    }
+                }
+                else -> {
+                    errors.add("Value is not a valid float")
+                    null
+                }
+            }
+        }
+        DataType.DOUBLE -> {
+            when (value) {
+                is Double -> value
+                is Float -> value.toDouble()
+                is String -> {
+                    try {
+                        value.toDouble()
+                    } catch (e: NumberFormatException) {
+                        errors.add("Value is not a valid double")
+                        null
+                    }
+                }
+                else -> {
+                    errors.add("Value is not a valid double")
+                    null
+                }
+            }
+        }
+        DataType.DATE -> {
+            when (value) {
+                is Date -> value
+                is String -> {
+                    try {
+                        SimpleDateFormat("yyyy-MM-dd").parse(value)
+                    } catch (e: ParseException) {
+                        errors.add("Value is not a valid date (yyyy-MM-dd format)")
+                        null
+                    }
+                }
+                else -> {
+                    errors.add("Value is not a valid date")
+                    null
+                }
+            }
+        }
+        DataType.DATE_TIME -> {
+            when (value) {
+                is Date -> value
+                is String -> {
+                    try {
+                        SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(value)
+                    } catch (e: ParseException) {
+                        errors.add("Value is not a valid date-time (yyyy-MM-dd HH:mm:ss format)")
+                        null
+                    }
+                }
+                else -> {
+                    errors.add("Value is not a valid date-time")
+                    null
+                }
+            }
+        }
+        DataType.NUMBER -> {
+            when (value) {
+                is Number -> value
+                is String -> {
+                    try {
+                        value.toDouble()
+                    } catch (e: NumberFormatException) {
+                        errors.add("Value is not a valid number")
+                        null
+                    }
+                }
+                else -> {
+                    errors.add("Value is not a valid number")
+                    null
+                }
+            }
+        }
+        // Add cases for other data types
+    }
+
+    return ValidationResult(formattedValue, errors)
+}
+
+fun main() {
+    val booleanValue: Any = "True"
+    val stringValue: Any = "123"
+    val uuidValue: Any = "c47d4ea4-1282-43a6-a8eb-9b11cdd62a9d"
+    val charValue: Any = 'A'
+    val shortValue: Any = 42
+    val intValue: Any = 123
+    val longValue: Any = 456L
+    val floatValue: Any = 3.14f
+    val doubleValue: Any = 2.718
+    val dateValue: Any = "2023-10-04"
+    val dateTimeValue: Any = "2023-10-04 15:30:00"
+    val numberValue: Any = "42.42"
+
+    val formattedBoolean = handleFormattingType(booleanValue, DataType.BOOLEAN)
+    val formattedString = handleFormattingType(stringValue, DataType.STRING)
+    val formattedUuid = handleFormattingType(uuidValue, DataType.UUID)
+    val formattedChar = handleFormattingType(charValue, DataType.CHARACTER)
+    val formattedShort = handleFormattingType(shortValue, DataType.SHORT)
+    val formattedInt = handleFormattingType(intValue, DataType.INTEGER)
+    val formattedLong = handleFormattingType(longValue, DataType.L
