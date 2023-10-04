@@ -1,0 +1,43 @@
+import java.io.File;
+
+public class DirectoryScanner {
+    public static void main(String[] args) {
+        File currentDirectory = new File(System.getProperty("user.dir"));
+        findAndPrintLandingZone(currentDirectory);
+    }
+
+    public static void findAndPrintLandingZone(File directory) {
+        File[] files = directory.listFiles();
+
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory() && file.getName().equals("Landing_zone")) {
+                    // Found the Landing_zone directory
+                    listFoldersInDirectory(file);
+                    return;
+                }
+            }
+
+            // Recursively search in the parent directory
+            File parentDirectory = directory.getParentFile();
+            if (parentDirectory != null) {
+                findAndPrintLandingZone(parentDirectory);
+            }
+        }
+    }
+
+    public static void listFoldersInDirectory(File directory) {
+        File[] subDirectories = directory.listFiles();
+
+        if (subDirectories != null) {
+            System.out.println("Folders inside Landing_zone directory:");
+            for (File subDirectory : subDirectories) {
+                if (subDirectory.isDirectory()) {
+                    System.out.println(subDirectory.getName());
+                }
+            }
+        } else {
+            System.out.println("No subdirectories found in Landing_zone directory.");
+        }
+    }
+}
