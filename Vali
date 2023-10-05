@@ -1,0 +1,208 @@
+class ValidationSummary {
+    private val validations: MutableList<Validation> = mutableListOf()
+
+    fun addValidation(validation: Validation) {
+        validations.add(validation)
+    }
+
+    fun inferOverallLevel(): ValidationLevel {
+        // Logic to determine the overall validation level
+        // (Walks through validations, picks the highest level, and sets it)
+        // Implement this logic as per your requirements.
+        // For now, I'll assume it returns ValidationLevel.OK.
+        return ValidationLevel.OK
+    }
+}
+
+data class Validation(
+    val level: ValidationLevel,
+    val category: ValidationCategory,
+    val fields: List<String>,
+    val message: String
+)
+
+enum class ValidationLevel {
+    OK, ERROR, WARNING
+}
+
+enum class ValidationCategory {
+    TYPE_CONSTRAINT,
+    FORMAT_CONVERSION,
+    PATTERN_MATCH_CONSTRAINT
+}
+
+object Schema {
+    fun lookupType(field: String): String {
+        // Implement schema lookup logic here
+        // This is a placeholder.
+        return "core:string"
+    }
+}
+
+object DateValidator {
+    fun validateAndFormat(value: String): String {
+        // Implement date validation and formatting logic here
+        // This is a placeholder.
+        return value
+    }
+}
+
+object DateTimeValidator {
+    fun validateAndFormat(value: String): String {
+        // Implement datetime validation and formatting logic here
+        // This is a placeholder.
+        return value
+    }
+}
+
+object UUIDValidator {
+    fun validateAndFormat(value: String): String {
+        // Implement UUID validation and formatting logic here
+        // This is a placeholder.
+        return value
+    }
+}
+
+object PhoneNumberValidator {
+    fun validateAndFormat(value: String): String {
+        // Implement phone number validation and formatting logic here
+        // This is a placeholder.
+        return value
+    }
+}
+
+object EmailAddressValidator {
+    fun validateAndFormat(value: String): String {
+        // Implement email address validation and formatting logic here
+        // This is a placeholder.
+        return value
+    }
+}
+
+fun main() {
+    // Create a validation summary
+    val validationSummary = ValidationSummary()
+
+    // Example usage of the pseudocode logic
+    val field = "attribute.field" // Replace with actual field path
+    val value = "123" // Replace with actual value
+    val datatype = Schema.lookupType(field)
+
+    // 1. Check that value complies with data types declared in schema
+    val category1 = ValidationCategory.TYPE_CONSTRAINT
+    try {
+        when (datatype) {
+            "core:string" -> validateType(value, "core:string")
+            "core:integer" -> validateType(value, "core:integer")
+            // Add more data type cases as needed
+            else -> { /* Do nothing */ }
+        }
+        val validation = Validation(
+            ValidationLevel.OK,
+            category1,
+            listOf(field),
+            "Field $field value complies with type $datatype ok."
+        )
+        validationSummary.addValidation(validation)
+    } catch (exception: Exception) {
+        val message = extractMessage(exception.message)
+        val validation = Validation(
+            ValidationLevel.ERROR,
+            category1,
+            listOf(field),
+            message
+        )
+        validationSummary.addValidation(validation)
+    }
+
+    // 2. Validate and format semantic types we can determine from data types
+    val category2 = ValidationCategory.FORMAT_CONVERSION
+    try {
+        when (datatype) {
+            "core:date" -> {
+                val formattedDate = DateValidator.validateAndFormat(value)
+                // Update field value to the reformatted value
+                // ...
+            }
+            "core:datetime" -> {
+                val formattedDateTime = DateTimeValidator.validateAndFormat(value)
+                // Update field value to the reformatted value
+                // ...
+            }
+            "core:uuid" -> {
+                val formattedUUID = UUIDValidator.validateAndFormat(value)
+                // Update field value to the reformatted value
+                // ...
+            }
+            else -> { /* Do nothing */ }
+        }
+        val validation = Validation(
+            ValidationLevel.OK,
+            category2,
+            listOf(field),
+            "Field $field value format for type $datatype ok."
+        )
+        validationSummary.addValidation(validation)
+    } catch (exception: Exception) {
+        val message = extractMessage(exception.message)
+        val validation = Validation(
+            ValidationLevel.ERROR,
+            category2,
+            listOf(field),
+            message
+        )
+        validationSummary.addValidation(validation)
+    }
+
+    // 3. Validate and format semantic types we have to infer from field paths
+    val category3 = ValidationCategory.PATTERN_MATCH_CONSTRAINT
+    try {
+        when {
+            field.endsWith("phoneNumbers.number") -> {
+                val formattedPhoneNumber = PhoneNumberValidator.validateAndFormat(value)
+                // Update field value to the reformatted value
+                // ...
+            }
+            field.endsWith("emails.address") -> {
+                val formattedEmailAddress = EmailAddressValidator.validateAndFormat(value)
+                // Update field value to the reformatted value
+                // ...
+            }
+            else -> { /* Do nothing */ }
+        }
+        val validation = Validation(
+            ValidationLevel.OK,
+            category3,
+            listOf(field),
+            "Field $field value format for inferred type ok."
+        )
+        validationSummary.addValidation(validation)
+    } catch (exception: Exception) {
+        val message = extractMessage(exception.message)
+        val validation = Validation(
+            ValidationLevel.ERROR,
+            category3,
+            listOf(field),
+            message
+        )
+        validationSummary.addValidation(validation)
+    }
+
+    // Check if there are any errors or warnings
+    val overallLevel = validationSummary.inferOverallLevel()
+    println("Overall validation level: $overallLevel")
+}
+
+fun validateType(value: String, dataType: String) {
+    // Implement type validation logic here
+    // This is a placeholder.
+    // You can add specific validation rules for each data type.
+    // Throw an exception if the validation fails.
+}
+
+fun extractMessage(message: String?): String {
+    // Implement message extraction logic here
+    // This is a placeholder.
+    // You can customize the message extraction based on your needs.
+    return message ?: "Unknown error"
+}
